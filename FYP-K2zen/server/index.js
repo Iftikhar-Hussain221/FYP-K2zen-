@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import router from "./routes/auth.routes.js";
+import rentCar from "./routes/rentCar.routes.js";
 
 const app = express();
 
@@ -19,19 +20,19 @@ app.use(express.json());
 const DatabaseConnection = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log("Connected to MongoDB.");
+    console.log(" Connected to MongoDB.");
   } catch (error) {
-    console.error("MongoDB Connection Error:", error.message);
+    console.error(" MongoDB Connection Error:", error.message);
   }
 };
 
 // Connection status listeners
 mongoose.connection.on("connected", () => {
-  console.log("MongoDB Connected!");
+  console.log(" MongoDB Connected!");
 });
 
 mongoose.connection.on("disconnected", () => {
-  console.log("MongoDB Disconnected!");
+  console.log(" MongoDB Disconnected!");
 });
 
 // Routes
@@ -39,7 +40,8 @@ app.get("/", (req, res) => {
   res.json({ message: "Hello from Backend!" });
 });
 
-app.use("/api/auth", router)
+app.use("/api/auth", router);
+app.use("/api/rentCar", rentCar);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -57,5 +59,5 @@ app.use((err, req, res, next) => {
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
   DatabaseConnection();
-  console.log(`Server running on port ${port}`);
+  console.log(` Server running on port ${port}`);
 });
