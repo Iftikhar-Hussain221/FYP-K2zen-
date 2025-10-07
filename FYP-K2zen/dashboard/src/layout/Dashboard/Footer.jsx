@@ -12,12 +12,12 @@ export default function Footer() {
   return (
     <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ p: '24px 16px 0px', mt: 'auto' }}>
       <Typography variant="caption">
-        &copy; K2zen Adventure Admin-Dashboard ♥ crafted by{' '}
+        &copy; K2zen Adventure Admin-Dashboard ♥ {' '}
         {/* <Link component={RouterLink} to="https://netbots.tech/" target="_blank" variant="caption" color="text.primary">
           {' '}
           Team NetBots
         </Link> */}
-        <p>RIA Team</p>
+        <p></p>
       </Typography>
     </Stack>
   );

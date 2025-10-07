@@ -46,24 +46,24 @@ const ToursTableWithForm = () => {
     image: null,
   };
 
-  const onSubmit = async (values, { resetForm }) => {
-    try {
-      const response = await axios.post("http://localhost:5000/api/tours", {
-        name: values.name,
-        location: values.location,
-        description: values.description,
-        status: values.status,
-        image: URL.createObjectURL(values.image), // demo purpose only
-      });
+ const onSubmit = async (values, { resetForm }) => {
+  try {
+    const response = await axios.post("http://localhost:8000/api/tours", {
+      name: values.name,
+      location: values.location,
+      description: values.description,
+      status: values.status,
+    });
 
-      // ✅ update state
-      setTours([...tours, response.data]);
-      resetForm();
-      setOpen(false);
-    } catch (error) {
-      console.error("Error adding tour:", error);
-    }
-  };
+    // ✅ update state
+    setTours([...tours, response.data]);
+    resetForm();
+    setOpen(false);
+  } catch (error) {
+    console.error("Error adding tour:", error);
+  }
+};
+
 
   useEffect(() => {
     axios

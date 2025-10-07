@@ -1,21 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  IconButton,
-  Typography,
-  Avatar,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Paper, IconButton, Typography, Avatar, Button, Dialog, DialogTitle,
+  DialogContent, DialogActions, TextField
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -23,26 +11,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import AddIcon from "@mui/icons-material/Add";
 
 const Hotels = () => {
-  // Dummy data
-  const [hotels, setHotels] = useState([
-    {
-      id: 1,
-      name: "Grand Palace Hotel",
-      description: "Luxury hotel in the city center",
-      location: "Karachi, Pakistan",
-      image: "",
-      status: "Available",
-    },
-    {
-      id: 2,
-      name: "Mountain View Inn",
-      description: "Cozy hotel near the mountains",
-      location: "Murree, Pakistan",
-      image: "",
-      status: "Booked",
-    },
-  ]);
-
+  const [hotels, setHotels] = useState([]);
   const [openView, setOpenView] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
@@ -51,67 +20,101 @@ const Hotels = () => {
     name: "",
     description: "",
     location: "",
-    image: "",
-    status: "",
+    image: null, // file instead of string
+    status: "Available",
   });
 
-  // Handlers
+  // ✅ Fetch from backend
+  useEffect(() => {
+    axios.get("http://localhost:5000/api/hotels")
+      .then((res) => setHotels(res.data))
+      .catch((err) => console.error("Error fetching hotels:", err));
+  }, []);
+
+  // ✅ View Hotel
   const handleView = (hotel) => {
     setSelectedHotel(hotel);
     setOpenView(true);
   };
 
+  // ✅ Edit Hotel
   const handleEdit = (hotel) => {
     setSelectedHotel(hotel);
-    setFormData(hotel);
+    setFormData({
+      name: hotel.name,
+      description: hotel.description,
+      location: hotel.location,
+      image: null, // image file not prefilled
+      status: hotel.status,
+    });
     setOpenEdit(true);
   };
 
+  // ✅ Add Hotel
   const handleAdd = () => {
-    setFormData({
-      name: "",
-      description: "",
-      location: "",
-      image: "",
-      status: "",
-    });
+    setFormData({ name: "", description: "", location: "", image: null, status: "Available" });
     setOpenAdd(true);
   };
 
-  const handleSaveEdit = () => {
-    setHotels(
-      hotels.map((h) => (h.id === selectedHotel.id ? { ...formData, id: h.id } : h))
-    );
-    setOpenEdit(false);
+  // ✅ Save Edited Hotel
+  const handleSaveEdit = async () => {
+    try {
+      const data = new FormData();
+      Object.keys(formData).forEach((key) => {
+        if (formData[key]) data.append(key, formData[key]);
+      });
+
+      const res = await axios.put(
+        `http://localhost:5000/api/hotels/${selectedHotel._id}`,
+        data,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      setHotels(hotels.map((h) => (h._id === selectedHotel._id ? res.data : h)));
+      setOpenEdit(false);
+    } catch (err) {
+      console.error("Error updating hotel:", err);
+    }
   };
 
-  const handleSaveAdd = () => {
-    const newHotel = { ...formData, id: hotels.length + 1 };
-    setHotels([...hotels, newHotel]);
-    setOpenAdd(false);
+  // ✅ Add New Hotel
+  const handleSaveAdd = async () => {
+    try {
+      const data = new FormData();
+      Object.keys(formData).forEach((key) => {
+        if (formData[key]) data.append(key, formData[key]);
+      });
+
+      const res = await axios.post("http://localhost:5000/api/hotels", data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setHotels([...hotels, res.data]);
+      setOpenAdd(false);
+    } catch (err) {
+      console.error("Error adding hotel:", err);
+    }
   };
 
-  const handleDelete = (hotel) => {
-    setHotels(hotels.filter((h) => h.id !== hotel.id));
+  // ✅ Delete Hotel
+  const handleDelete = async (hotel) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/hotels/${hotel._id}`);
+      setHotels(hotels.filter((h) => h._id !== hotel._id));
+    } catch (err) {
+      console.error("Error deleting hotel:", err);
+    }
   };
 
   return (
     <div style={{ padding: "20px" }}>
-      <Typography variant="h5" gutterBottom>
-        Hotels List
-      </Typography>
+      <Typography variant="h5" gutterBottom>Hotels List</Typography>
 
-      <Button
-        variant="contained"
-        color="primary"
-        startIcon={<AddIcon />}
-        onClick={handleAdd}
-        style={{ marginBottom: "15px" }}
-      >
+      <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={handleAdd}>
         Add New Hotel
       </Button>
 
-      <TableContainer component={Paper}>
+      {/* Table */}
+      <TableContainer component={Paper} style={{ marginTop: "20px" }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -124,41 +127,28 @@ const Hotels = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {hotels.length > 0 ? (
-              hotels.map((hotel) => (
-                <TableRow key={hotel.id}>
-                  <TableCell>{hotel.name}</TableCell>
-                  <TableCell>{hotel.description}</TableCell>
-                  <TableCell>{hotel.location}</TableCell>
-                  <TableCell>
-                    <Avatar
-                      src={hotel.image}
-                      alt={hotel.name}
-                      variant="rounded"
-                      sx={{ width: 56, height: 56 }}
-                    />
-                  </TableCell>
-                  <TableCell>{hotel.status}</TableCell>
-                  <TableCell align="center">
-                    <IconButton color="primary" onClick={() => handleView(hotel)}>
-                      <VisibilityIcon />
-                    </IconButton>
-                    <IconButton color="secondary" onClick={() => handleEdit(hotel)}>
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton color="error" onClick={() => handleDelete(hotel)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={6} align="center">
-                  No Hotels Available
+            {hotels.map((hotel) => (
+              <TableRow key={hotel._id}>
+                <TableCell>{hotel.name}</TableCell>
+                <TableCell>{hotel.description}</TableCell>
+                <TableCell>{hotel.location}</TableCell>
+                <TableCell>
+                  <Avatar src={hotel.image} alt={hotel.name} variant="rounded" sx={{ width: 56, height: 56 }} />
+                </TableCell>
+                <TableCell>{hotel.status}</TableCell>
+                <TableCell align="center">
+                  <IconButton color="primary" onClick={() => handleView(hotel)}>
+                    <VisibilityIcon />
+                  </IconButton>
+                  <IconButton color="secondary" onClick={() => handleEdit(hotel)}>
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton color="error" onClick={() => handleDelete(hotel)}>
+                    <DeleteIcon />
+                  </IconButton>
                 </TableCell>
               </TableRow>
-            )}
+            ))}
           </TableBody>
         </Table>
       </TableContainer>
@@ -168,23 +158,15 @@ const Hotels = () => {
         <DialogTitle>Hotel Details</DialogTitle>
         <DialogContent>
           {selectedHotel && (
-            <div style={{ lineHeight: "1.8" }}>
+            <>
               <p><b>Name:</b> {selectedHotel.name}</p>
               <p><b>Description:</b> {selectedHotel.description}</p>
               <p><b>Location:</b> {selectedHotel.location}</p>
               <p><b>Status:</b> {selectedHotel.status}</p>
-              <Avatar
-                src={selectedHotel.image}
-                alt={selectedHotel.name}
-                variant="rounded"
-                sx={{ width: 100, height: 100 }}
-              />
-            </div>
+              <Avatar src={selectedHotel.image} sx={{ width: 100, height: 100 }} />
+            </>
           )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenView(false)}>Close</Button>
-        </DialogActions>
       </Dialog>
 
       {/* Edit Modal */}
@@ -193,7 +175,7 @@ const Hotels = () => {
         <DialogContent>
           <TextField
             margin="dense"
-            label="Hotel Name"
+            label="Name"
             fullWidth
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -203,25 +185,20 @@ const Hotels = () => {
             label="Description"
             fullWidth
             value={formData.description}
-            onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
-            }
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           />
           <TextField
             margin="dense"
             label="Location"
             fullWidth
             value={formData.location}
-            onChange={(e) =>
-              setFormData({ ...formData, location: e.target.value })
-            }
+            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
           />
-          <TextField
-            margin="dense"
-            label="Image URL"
-            fullWidth
-            value={formData.image}
-            onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })}
+            style={{ marginTop: "10px" }}
           />
           <TextField
             margin="dense"
@@ -233,9 +210,7 @@ const Hotels = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenEdit(false)}>Cancel</Button>
-          <Button onClick={handleSaveEdit} variant="contained" color="primary">
-            Save
-          </Button>
+          <Button variant="contained" color="primary" onClick={handleSaveEdit}>Save</Button>
         </DialogActions>
       </Dialog>
 
@@ -245,7 +220,7 @@ const Hotels = () => {
         <DialogContent>
           <TextField
             margin="dense"
-            label="Hotel Name"
+            label="Name"
             fullWidth
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -255,25 +230,20 @@ const Hotels = () => {
             label="Description"
             fullWidth
             value={formData.description}
-            onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
-            }
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           />
           <TextField
             margin="dense"
             label="Location"
             fullWidth
             value={formData.location}
-            onChange={(e) =>
-              setFormData({ ...formData, location: e.target.value })
-            }
+            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
           />
-          <TextField
-            margin="dense"
-            label="Image URL"
-            fullWidth
-            value={formData.image}
-            onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })}
+            style={{ marginTop: "10px" }}
           />
           <TextField
             margin="dense"
@@ -285,9 +255,7 @@ const Hotels = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenAdd(false)}>Cancel</Button>
-          <Button onClick={handleSaveAdd} variant="contained" color="primary">
-            Add
-          </Button>
+          <Button variant="contained" color="primary" onClick={handleSaveAdd}>Add</Button>
         </DialogActions>
       </Dialog>
     </div>
