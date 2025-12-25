@@ -7,7 +7,7 @@ import Loadable from 'components/Loadable';
 import { Reviews } from '@mui/icons-material';
 
 // render - data display components
-const Dashboard = Loadable(lazy(() => import('pages/dashboard/default')));
+// const Dashboard = Loadable(lazy(() => import('pages/dashboard/default')));
 const Users = Loadable(lazy(() => import('pages/users/AddUser')));
 const Settings = Loadable(lazy(() => import('pages/setting/Setting')));
 const Invoice = Loadable(lazy(() => import('pages/Invoice/Invoice')));
@@ -17,10 +17,12 @@ const Destinations = Loadable(lazy(() => import('pages/Destination/Destinations'
 const RentCar = Loadable(lazy(() => import('pages/rentCar/rentCar')));
 const Hotels = Loadable(lazy(() => import('pages/hotels/hotels')));
 const Customers = Loadable(lazy(() => import('pages/Customers/Customers')));
+const PackageBookings = Loadable(lazy(() => import('pages/packageBooking/packageBooking')));
 const HotelBookings = Loadable(lazy(() => import('pages/hotel booking/hotelBooking')));
 const CarBookings = Loadable(lazy(() => import('pages/carbooking/carBookings')));
 const CustomizePackages = Loadable(lazy(() => import('pages/customizePackage/customizePackage')));
 const Review = Loadable(lazy(() => import('pages/reviews/reviews')));
+const ContactUs = Loadable(lazy(() => import('pages/contactUs/contact')));
 
 
 
@@ -28,10 +30,10 @@ const ComponentsRoutes = {
   path: '/',
   element: <MainLayout />,
   children: [
-    {
-      path: 'dashboard',
-      element: <Dashboard />
-    },
+    // {
+    //   path: 'dashboard',
+    //   element: <Dashboard />
+    // },
     {
       path: 'packages',
       element: <Packages/>
@@ -60,6 +62,10 @@ const ComponentsRoutes = {
       path: 'users',
       element: <Users />
     },
+    {
+      path: 'packageBookings',
+      element: <PackageBookings />
+    },
      {
       path: 'hotelbookings',
       element: <HotelBookings />
@@ -75,6 +81,10 @@ const ComponentsRoutes = {
       {
       path: 'reviews',
       element: <Review />
+    },
+     {
+      path: 'contactUs',
+      element: <ContactUs />
     },
     {
       path: 'settings',

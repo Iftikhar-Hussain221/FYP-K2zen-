@@ -4,6 +4,7 @@ import {
   Typography,
   Card,
   CardContent,
+  CardMedia,
   Button,
   CircularProgress,
 } from "@mui/material";
@@ -23,66 +24,92 @@ export default function TransportBooking() {
       setLoading(true);
       try {
         const res = await axios.get(API_URL);
-        setCars(res.data);
+        console.log("Fetched Cars:", res.data);
+
+        const data =
+          res.data.cars ||
+          res.data.data ||
+          res.data.allCars ||
+          res.data ||
+          [];
+
+        setCars(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error fetching rent cars:", error);
+        setCars([]);
       } finally {
         setLoading(false);
       }
     };
+
     fetchCars();
   }, []);
 
-  // Navigate to Car Booking Page
   const handleBookNow = (car) => {
     navigate("/carbooking", { state: { car } });
   };
 
   return (
-    <Box className="transport-section">
-      <div className="section-header">
-        <Typography variant="h3" className="section-title">
+    <Box className="rentcar-page">
+      <Box className="section-header">
+        <Typography variant="h4" className="section-title">
           Transport Booking
         </Typography>
-        <Typography className="section-subtitle">
-          Choose from our premium vehicles with professional drivers for a
-          comfortable and safe journey across Gilgit-Baltistan.
+        <Typography variant="body1" className="section-subtitle">
+          Choose from our premium vehicles with professional drivers.
         </Typography>
-      </div>
+      </Box>
 
       {loading ? (
-        <CircularProgress />
+        <Box className="loading-box">
+          <CircularProgress />
+        </Box>
       ) : (
-        <div className="car-row">
+        <Box className="rentcar-container">
           {cars.length > 0 ? (
-            cars.map((car) => (
-              <Card className="transport-card" key={car._id}>
-                <div className="car-image">
-                  <img
-                    src={`http://localhost:8000/${car.image.replace(/\\/g, "/")}`}
-                    alt={car.carName}
-                  />
-                </div>
+            cars.map((car, index) => (
+              <Card key={index} className="rentcar-card">
+                <CardMedia
+                  component="img"
+                  image={
+                    car.image
+                      ? `http://localhost:8000/${car.image.replace(/\\/g, "/")}`
+                      : car.images && car.images.length > 0
+                      ? `http://localhost:8000/${car.images[0].replace(/\\/g, "/")}`
+                      : "https://via.placeholder.com/300x200"
+                  }
+                  alt={car.carName || car.name || "Car"}
+                  className="rentcar-image"
+                />
 
-                <CardContent className="car-content">
-                  <Typography variant="h6" className="car-title">
-                    {car.carName} ({car.modelYear})
+                <CardContent className="rentcar-content">
+                  <Typography variant="h6" className="rentcar-name">
+                    {car.carName || car.name}{" "}
+                    {car.modelYear ? `(${car.modelYear})` : ""}
                   </Typography>
-                  <Typography className="car-details">
-                    Capacity: {car.seats} Persons
+
+                  <Typography variant="body2" className="rentcar-desc">
+                    {car.description || "No description available."}
                   </Typography>
-                  <Typography className="car-details">
-                    Location: {car.location}
+
+                  <Typography variant="body2" className="rentcar-info">
+                    Capacity: {car.seats || "N/A"} Persons
                   </Typography>
-                  <Typography className="car-details">
-                    Status: {car.status}
+
+                  <Typography variant="body2" className="rentcar-info">
+                    Location: {car.location || "Not Specified"}
                   </Typography>
-                  <Typography className="car-price">
-                    PKR {car.pricePerDay}/day
+
+                  <Typography variant="body2" className="rentcar-info">
+                    Status: {car.status || "Available"}
                   </Typography>
-                  <Typography className="car-desc">{car.description}</Typography>
+
+                  <Typography variant="subtitle1" className="rentcar-price">
+                    PKR {(car.pricePerDay || car.price || car.rent)}/day
+                  </Typography>
+
                   <Button
-                    className="car-btn"
+                    className="rentcar-btn"
                     onClick={() => handleBookNow(car)}
                   >
                     Book Now
@@ -91,11 +118,11 @@ export default function TransportBooking() {
               </Card>
             ))
           ) : (
-            <Typography align="center" variant="h6">
+            <Typography align="center" className="no-data">
               No cars available.
             </Typography>
           )}
-        </div>
+        </Box>
       )}
     </Box>
   );

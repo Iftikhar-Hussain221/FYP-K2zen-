@@ -40,14 +40,14 @@ const UpdatedMenu = {
   icon: icons.navigation,
   type: 'group',
   children: [
-    {
-      id: 'dashboard',
-      title: 'Dashboard',
-      type: 'item',
-      url: '/dashboard',
-      icon: icons.dashboard,
-      breadcrumbs: false
-    },
+    // {
+    //   id: 'dashboard',
+    //   title: 'Dashboard',
+    //   type: 'item',
+    //   url: '/dashboard',
+    //   icon: icons.dashboard,
+    //   breadcrumbs: false
+    // },
      {
       id: 'Destinations',
       title: 'Destinations',
@@ -80,14 +80,14 @@ const UpdatedMenu = {
       icon: icons.hotels,
       breadcrumbs: false
     },
-    {
-      id: 'customers',
-      title: 'Customers',
-      type: 'item',
-      url: '/customers',
-      icon: icons.customers,
-      breadcrumbs: false
-    },
+    // {
+    //   id: 'customers',
+    //   title: 'Customers',
+    //   type: 'item',
+    //   url: '/customers',
+    //   icon: icons.customers,
+    //   breadcrumbs: false
+    // },
     {
       id: 'invoices',
       title: 'Invoices',
@@ -101,6 +101,14 @@ const UpdatedMenu = {
       title: 'Users',
       type: 'item',
       url: '/users',
+      icon: icons.users,
+      breadcrumbs: false
+    },
+     {
+      id: 'packageBookings',
+      title: 'packageBookings',
+      type: 'item',
+      url: '/packagebookings',
       icon: icons.users,
       breadcrumbs: false
     },
@@ -133,6 +141,14 @@ const UpdatedMenu = {
       title: 'reviews',
       type: 'item',
       url: '/reviews',
+      icon: icons.users,
+      breadcrumbs: false
+    },
+     {
+      id: 'contactUs',
+      title: 'contactUs',
+      type: 'item',
+      url: '/contactUs',
       icon: icons.users,
       breadcrumbs: false
     },
